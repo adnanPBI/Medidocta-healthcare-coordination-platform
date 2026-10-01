@@ -1,0 +1,12 @@
+Flow,Phone,Tablet,Desktop/browser,Canonical resource/API,Offline rule,Decision boundary
+Authentication/onboarding,Single-column forms,Adaptive forms,Same flow with guidance panels,Account/Identity,No separate device account,DR-001/040
+Search/discovery,Cards + filter drawer,Split filters/results,Persistent filter rail + dense results,Search-safe read models,Safe read cache optional,Map/provider DR-032
+Doctor/Facility detail,Stacked summary + CTA,Two-column summary,Multi-column detail + availability,Published profile resources,Safe read cache optional,None
+Availability browse,Day strip/list,Calendar/list hybrid,Week calendar + detail panel,Availability projection,Read cache only,Timezone DR-012
+Booking submit,Focused review/confirm,Same command,Same command,POST canonical booking with idempotency,Online authority required,DR-003 to DR-009
+Appointment detail,Compact permitted actions,Adaptive details,Details + operational side panel,Same appointment_id,Reads cacheable; writes online,DR-004/005
+Doctor facility availability,Facility context always visible,Calendar editor,Dense recurring-rule calendar,Affiliation-scoped availability,Writes online,DR-010/044+
+Facility appointment calendar,Agenda-first day view,Day/week hybrid,Dense day/week calendar,Same Appointment resources,Writes online,Room/arrival rules
+Contracts/financial terms,Readable version/response,Side-by-side where possible,Comparison + version history,Same Contract/Affiliation,Writes online,DR-013 to DR-015
+Administration,Critical tasks only if supported,Adaptive tables/cards,Full operational tables/dashboards,Same canonical APIs,Privileged writes online,Mobile admin scope PDR
+Offline/PWA shell,Explicit offline banner,Same,Same,Cached shell/safe reads only,No concurrency-sensitive committed writes,DR-052
