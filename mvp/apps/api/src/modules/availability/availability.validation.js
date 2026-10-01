@@ -54,6 +54,10 @@ export function validateTimezoneName(value) {
 }
 
 export function validateAvailabilityRevision(input = {}) {
+  const expectedVersion = Number(input.expectedVersion);
+  if (!Number.isInteger(expectedVersion) || expectedVersion < 0) {
+    fail('INVALID_AVAILABILITY_VERSION', 'expectedVersion must be an integer greater than or equal to zero');
+  }
   const timezoneName = validateTimezoneName(input.timezoneName);
   const recurringRules = Array.isArray(input.recurringRules) ? input.recurringRules : [];
   const exceptions = Array.isArray(input.exceptions) ? input.exceptions : [];
@@ -122,6 +126,7 @@ export function validateAvailabilityRevision(input = {}) {
   });
 
   return {
+    expectedVersion,
     timezoneName,
     recurringRules: normalizedRules,
     exceptions: normalizedExceptions,
