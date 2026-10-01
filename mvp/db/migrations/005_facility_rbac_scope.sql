@@ -66,6 +66,19 @@ alter table facility_staff_memberships
   add constraint facility_staff_active_requires_bundle
   check (status <> 'ACTIVE' or bundle_id is not null);
 
+do $
+begin
+  if exists (
+    select 1
+    from facility_bundle_permissions fbp
+    join permission_definitions pd on pd.code = fbp.permission_code
+    where pd.delegation_scope <> 'FACILITY_BUNDLE'
+  ) then
+    raise exception 'existing Facility bundle contains a non-delegatable permission';
+  end if;
+end;
+$;
+
 create or replace function enforce_facility_delegatable_permission()
 returns trigger
 language plpgsql
