@@ -6,7 +6,7 @@ This directory is the production MVP implementation track. The repository-root s
 
 1. **Foundation, environments, CI/CD, identity/session** - implemented.
 2. **Canonical Doctor/Facility profiles and taxonomy foundation** - implemented to the currently approved boundary; verification/search publishing remains gated.
-3. Facility staff, RBAC and resource scope.
+3. **Facility staff, RBAC and resource scope** - security substrate and read APIs implemented; product mutation flows remain decision-gated.
 4. Doctor-Facility affiliations and contracts.
 5. Facility-specific availability and slot projection.
 6. Transactional booking and canonical Appointment.
@@ -42,6 +42,22 @@ This directory is the production MVP implementation track. The repository-root s
 - Verification lifecycle and public search/discoverability remain gated by product decisions/Figma validation.
 - PostgreSQL-backed API integration test in CI.
 - Checksum-protected migration runner.
+
+## Milestone 3 implemented
+
+- Facility-delegatable permission boundary enforced in PostgreSQL.
+- Exact Facility bundle/membership resource scope.
+- Cross-Facility bundle assignment blocked by composite foreign key.
+- ACTIVE membership requires a bundle.
+- Archived bundles immediately lose authorization power.
+- Facility staff/bundle read APIs require exact scoped permissions.
+- Self-scope API exposes the authenticated account's effective Facility permissions.
+- Platform-only privileges cannot be inserted into Facility bundles.
+- Suspended/closed accounts are rejected by protected MVP routes.
+- No default receptionist/scheduling/finance/admin bundle catalog has been invented.
+- No staff invitation/assignment/bundle mutation workflow has been exposed while DR-002/DR-016 remain unresolved.
+
+See `docs/MILESTONE_03_FACILITY_RBAC.md` and `docs/RBAC_SECURITY_MODEL.md`.
 
 ## Local start
 

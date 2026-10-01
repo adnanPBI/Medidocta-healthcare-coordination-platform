@@ -25,13 +25,18 @@ export async function loadSessionContext(pool, subject) {
         order by ar.role_code
       `, [row.id]),
       client.query(`
-        select fsm.id, fsm.facility_id, fsm.bundle_id, fsm.status,
+        select fsm.id, fsm.facility_id, fsm.bundle_id, fsm.status, fsm.version,
+               fpb.code as bundle_code, fpb.name as bundle_name,
+               fpb.status as bundle_status, fpb.version as bundle_version,
                coalesce(array_agg(distinct fbp.permission_code)
-                 filter (where fbp.permission_code is not null), '{}') as permissions
+                 filter (where fbp.permission_code is not null and fpb.status = 'ACTIVE'), '{}') as permissions
         from facility_staff_memberships fsm
-        left join facility_bundle_permissions fbp on fbp.bundle_id = fsm.bundle_id
+        left join facility_permission_bundles fpb
+          on fpb.id = fsm.bundle_id and fpb.facility_id = fsm.facility_id
+        left join facility_bundle_permissions fbp on fbp.bundle_id = fpb.id
         where fsm.account_id = $1 and fsm.status = 'ACTIVE'
-        group by fsm.id, fsm.facility_id, fsm.bundle_id, fsm.status
+        group by fsm.id, fsm.facility_id, fsm.bundle_id, fsm.status, fsm.version,
+                 fpb.code, fpb.name, fpb.status, fpb.version
         order by fsm.facility_id
       `, [row.id]),
       row.doctor_profile_id ? client.query(`
@@ -53,7 +58,12 @@ export async function loadSessionContext(pool, subject) {
       membershipId: r.id,
       facilityId: r.facility_id,
       bundleId: r.bundle_id,
+      bundleCode: r.bundle_code,
+      bundleName: r.bundle_name,
+      bundleStatus: r.bundle_status,
+      bundleVersion: r.bundle_version,
       status: r.status,
+      version: r.version,
       permissions: r.permissions
     }));
     const permissions = [...new Set([
