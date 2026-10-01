@@ -1,0 +1,13 @@
+{
+  "name": "medidocta-mvp",
+  "private": true,
+  "version": "0.1.0",
+  "engines": { "node": ">=22" },
+  "workspaces": ["apps/api"],
+  "scripts": {
+    "dev:api": "npm --workspace apps/api run dev",
+    "start:api": "npm --workspace apps/api run start",
+    "test": "node --test apps/api/test/*.test.js",
+    "check": "node scripts/check-syntax.mjs"
+  }
+}
