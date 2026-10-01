@@ -124,7 +124,7 @@ integration('Facility RBAC is bundle-based, resource-scoped and privilege-safe',
 
     const permissionCatalog = await app.inject({
       method: 'GET',
-      url: '/v1/rbac/facility-delegatable-permissions',
+      url: `/v1/facilities/${facilityA}/rbac/delegatable-permissions`,
       headers: { 'x-dev-sub': staffSub }
     });
     assert.equal(permissionCatalog.statusCode, 200);
