@@ -11,11 +11,14 @@ import {
 } from './facility-rbac.service.js';
 
 export async function registerFacilityRbacRoutes(app, deps) {
-  app.get('/v1/rbac/facility-delegatable-permissions', {
+  app.get('/v1/facilities/:facilityId/rbac/delegatable-permissions', {
     preHandler: deps.requireRegisteredContext
-  }, async () => ({
-    items: await listDelegatablePermissions(deps.pool)
-  }));
+  }, async request => {
+    const facilityId = request.params.facilityId;
+    requireFacilityPermission(request.context, facilityId, 'facility.bundle.read');
+    await assertFacilityExists(deps.pool, facilityId);
+    return { facilityId, items: await listDelegatablePermissions(deps.pool) };
+  });
 
   app.get('/v1/facilities/:facilityId/rbac/me', {
     preHandler: deps.requireRegisteredContext
@@ -41,6 +44,8 @@ export async function registerFacilityRbacRoutes(app, deps) {
         bundleId: membership.bundleId,
         bundleCode: membership.bundleCode,
         bundleName: membership.bundleName,
+        bundleStatus: membership.bundleStatus,
+        bundleVersion: membership.bundleVersion,
         status: membership.status,
         version: membership.version
       } : null,
