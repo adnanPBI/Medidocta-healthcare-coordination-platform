@@ -8,7 +8,7 @@ This directory is the production MVP implementation track. The repository-root s
 2. **Canonical Doctor/Facility profiles and taxonomy foundation** - implemented to the currently approved boundary; verification/search publishing remains gated.
 3. **Facility staff, RBAC and resource scope** - security substrate and read APIs implemented; product mutation flows remain decision-gated.
 4. **Doctor-Facility affiliations and contract/versioned financial-term foundation** - canonical read model and append-only proposal substrate implemented; lifecycle/authority/effective-term mutations remain decision-gated.
-5. Facility-specific availability and slot projection.
+5. **Facility-specific availability and slot projection** - versioned schedule history, explicit IANA timezone handling, candidate slot projection and global Doctor occupancy foundation implemented; scheduling policy mutations remain decision-gated.
 6. Transactional booking and canonical Appointment.
 7. Reception, arrival, rooms and consultation operations.
 8. Notifications, files, audit and administration.
@@ -73,6 +73,23 @@ See `docs/MILESTONE_03_FACILITY_RBAC.md` and `docs/RBAC_SECURITY_MODEL.md`.
 
 See `docs/MILESTONE_04_AFFILIATIONS_CONTRACTS.md` and `docs/CONTRACT_VERSIONING_MODEL.md`.
 
+## Milestone 5 implemented
+
+- One canonical availability schedule thread per Doctor-Facility affiliation.
+- Immutable versioned schedule revisions with optimistic `expectedVersion` conflict protection.
+- Explicit IANA timezone per schedule revision; no hard-coded Cameroon/future-market default.
+- Recurring weekly rules stored as local wall-clock intervals.
+- Exception windows preserved as absolute instants without inventing precedence.
+- Permission-aware availability read and projection APIs.
+- Explicit `slotMinutes` query input; no product granularity default.
+- 31-day technical projection-query cap, explicitly not a booking horizon.
+- Candidate slots never claim `bookable=true`.
+- Global Doctor occupancy table with PostgreSQL exclusion constraint across all facilities.
+- Stable `DOCTOR_OCCUPANCY_CONFLICT` translation for future booking integration.
+- No schedule mutation HTTP route while DR-007/008/010/012/043/044/045/046 remain unresolved.
+
+See `docs/MILESTONE_05_AVAILABILITY_PROJECTION.md` and `docs/AVAILABILITY_PROJECTION_MODEL.md`.
+
 ## Local start
 
 ```bash
@@ -93,3 +110,5 @@ Facility permission bundles are normalized but no invented role catalog is seede
 Milestone 2 intentionally rejects unknown profile fields rather than turning unsupplied Figma details into an accidental API contract.
 
 Milestone 4 deliberately separates technical contract history from business contract lifecycle. Proposal/counter/accept/reject/expire/suspend semantics, commercial authority, effective-term rules and affiliation initiation/state transitions remain behind DR-013/DR-014/DR-015/DR-042.
+
+Milestone 5 deliberately separates candidate slot projection from booking authority. Exception precedence, working-day enforcement, timezone policy, booking horizon, duration/granularity, buffers and behavior around existing appointments remain behind DR-007/DR-008/DR-010/DR-012/DR-043/DR-044/DR-045/DR-046.
