@@ -66,7 +66,7 @@ alter table facility_staff_memberships
   add constraint facility_staff_active_requires_bundle
   check (status <> 'ACTIVE' or bundle_id is not null);
 
-do $
+do $guard$
 begin
   if exists (
     select 1
@@ -77,7 +77,7 @@ begin
     raise exception 'existing Facility bundle contains a non-delegatable permission';
   end if;
 end;
-$;
+$guard$;
 
 create or replace function enforce_facility_delegatable_permission()
 returns trigger
