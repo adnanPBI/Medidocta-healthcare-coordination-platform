@@ -7,6 +7,7 @@ import { registerSessionRoutes } from './modules/session/session.routes.js';
 import { loadSessionContext } from './modules/session/session-context.service.js';
 import { registerTaxonomyRoutes } from './modules/taxonomy/taxonomy.routes.js';
 import { registerProfileRoutes } from './modules/profiles/profile.routes.js';
+import { registerFacilityRbacRoutes } from './modules/facility-rbac/facility-rbac.routes.js';
 
 export async function buildApp({ config, pool }) {
   const app = Fastify({ logger: { redact: ['req.headers.authorization', 'req.headers.cookie'] } });
@@ -28,6 +29,12 @@ export async function buildApp({ config, pool }) {
       error.code = 'ACCOUNT_NOT_REGISTERED';
       throw error;
     }
+    if (request.context.account.status !== 'ACTIVE') {
+      const error = new Error('Medidocta account is not active');
+      error.statusCode = 403;
+      error.code = 'ACCOUNT_INACTIVE';
+      throw error;
+    }
   }
 
   app.setErrorHandler((error, request, reply) => {
@@ -44,5 +51,6 @@ export async function buildApp({ config, pool }) {
   await registerTaxonomyRoutes(app, { pool });
   await registerSessionRoutes(app, { pool, requireIdentity });
   await registerProfileRoutes(app, { pool, requireRegisteredContext });
+  await registerFacilityRbacRoutes(app, { pool, requireRegisteredContext });
   return app;
 }
