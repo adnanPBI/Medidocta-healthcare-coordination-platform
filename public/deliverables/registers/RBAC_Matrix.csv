@@ -1,0 +1,19 @@
+Role / bundle,Resource,Capability,Resource scope,Notes
+Patient,Own patient profile,read/update,Own account/profile only,Field visibility remains privacy/product decision
+Patient,Doctor/Facility public discovery,read,Published/search-safe records,No private contract/financial data
+Patient,Availability,read,Bookable projection for selected Doctor/Facility/Affiliation,Projection is not authoritative
+Patient,Appointment,create/read/cancel/reschedule*,Appointments where patient/approved subject is party,Exact cancel/reschedule policy PRODUCT DECISION REQUIRED
+Doctor,Own professional profile,read/update,Own Doctor profile,Verification-gated fields may be locked
+Doctor,Verification evidence,create/read/submit*,Own verification case/evidence,Evidence lifecycle PRODUCT DECISION REQUIRED
+Doctor,Facility discovery,read,Published facility records,Approved capability
+Doctor,Affiliation,read/request/respond*,Affiliations where Doctor is party,Lifecycle PRODUCT DECISION REQUIRED
+Doctor,Contract/financial terms,read/propose/respond*,Affiliations where Doctor is party,Commercial authority PRODUCT DECISION REQUIRED
+Doctor,Availability,read/update*,Own approved affiliation(s),Edit authority PRODUCT DECISION REQUIRED
+Doctor,Appointment,read/lifecycle*,Appointments where Doctor is party,Exact state permissions PRODUCT DECISION REQUIRED
+Facility Reception,Appointment,read/arrival/room assignment*,Own facility only,No implied finance access
+Facility Scheduling,Availability/Appointment,read/update*,Own facility + assigned scope,Permission bundle PRODUCT DECISION REQUIRED
+Facility Finance,Contract/FinancialTerms,read/respond*,Own facility + financial permission,No reception implication
+Facility Admin,Facility profile/staff,read/update/manage*,Own facility only,Bootstrap owner/role catalog PRODUCT DECISION REQUIRED
+Medidocta Verifier,VerificationCase,read/review/decide*,Assigned/platform verification scope,Separation of duties recommended
+Medidocta Support,Account/Appointment support,limited read/actions*,Ticket/permission-scoped,All privileged actions audited
+Medidocta Admin,Canonical platform resources,privileged oversight*,Policy-limited internal scope,No direct DB workflow as normal operation
