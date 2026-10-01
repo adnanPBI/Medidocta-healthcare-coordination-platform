@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: medidocta
+      POSTGRES_USER: medidocta
+      POSTGRES_PASSWORD: medidocta
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medidocta -d medidocta"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - medidocta_pg:/var/lib/postgresql/data
+
+volumes:
+  medidocta_pg:
