@@ -13,6 +13,7 @@
     "@fastify/helmet": "13",
     "fastify": "5",
     "jose": "6",
+    "luxon": "3",
     "pg": "8"
   }
 }
