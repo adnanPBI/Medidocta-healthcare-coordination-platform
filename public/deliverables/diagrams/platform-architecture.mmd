@@ -1,0 +1,14 @@
+flowchart LR
+  A[Medidocta] --> B[Authentication]
+  B --> C[Server-resolved Role Context]
+  C --> D[Permissions]
+  D --> E[Resource Scope]
+  E --> F[Appropriate Interface]
+  F --> P[Patient View]
+  F --> DR[Doctor View]
+  F --> H[Healthcare Facility View]
+  F --> AD[Medidocta Admin View]
+  P --> APPT[(Canonical Appointment)]
+  DR --> APPT
+  H --> APPT
+  AD --> APPT
