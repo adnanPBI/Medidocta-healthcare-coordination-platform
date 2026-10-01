@@ -1,4 +1,4 @@
-name: MVP Foundation Checks
+name: MVP Checks
 
 on:
   pull_request:
@@ -14,6 +14,25 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: medidocta_test
+          POSTGRES_USER: medidocta
+          POSTGRES_PASSWORD: medidocta
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U medidocta -d medidocta_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://medidocta:medidocta@127.0.0.1:5432/medidocta_test
+      DATABASE_URL: postgres://medidocta:medidocta@127.0.0.1:5432/medidocta_test
+      AUTH_MODE: dev
+      NODE_ENV: test
     defaults:
       run:
         working-directory: mvp
@@ -24,4 +43,5 @@ jobs:
           node-version: '22'
       - run: npm install
       - run: npm run check
+      - run: npm run migrate
       - run: npm test
