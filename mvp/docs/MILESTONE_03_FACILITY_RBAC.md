@@ -28,7 +28,7 @@ Session context now resolves:
 Authorization never accepts a Facility ID or permission set asserted by the client.
 
 ### Read APIs
-- `GET /v1/rbac/facility-delegatable-permissions`
+- `GET /v1/facilities/:facilityId/rbac/delegatable-permissions`
 - `GET /v1/facilities/:facilityId/rbac/me`
 - `GET /v1/facilities/:facilityId/staff`
 - `GET /v1/facilities/:facilityId/permission-bundles`
