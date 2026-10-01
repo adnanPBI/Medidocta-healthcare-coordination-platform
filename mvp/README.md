@@ -7,7 +7,7 @@ This directory is the production MVP implementation track. The repository-root s
 1. **Foundation, environments, CI/CD, identity/session** - implemented.
 2. **Canonical Doctor/Facility profiles and taxonomy foundation** - implemented to the currently approved boundary; verification/search publishing remains gated.
 3. **Facility staff, RBAC and resource scope** - security substrate and read APIs implemented; product mutation flows remain decision-gated.
-4. Doctor-Facility affiliations and contracts.
+4. **Doctor-Facility affiliations and contract/versioned financial-term foundation** - canonical read model and append-only proposal substrate implemented; lifecycle/authority/effective-term mutations remain decision-gated.
 5. Facility-specific availability and slot projection.
 6. Transactional booking and canonical Appointment.
 7. Reception, arrival, rooms and consultation operations.
@@ -59,6 +59,20 @@ This directory is the production MVP implementation track. The repository-root s
 
 See `docs/MILESTONE_03_FACILITY_RBAC.md` and `docs/RBAC_SECURITY_MODEL.md`.
 
+## Milestone 4 implemented
+
+- Canonical Doctor-to-Healthcare-Facility affiliation read model.
+- Multi-Facility Doctor affiliations remain tied to one global Doctor profile.
+- Exactly one contract thread per affiliation, including automatic creation for future affiliations.
+- Immutable, monotonically versioned contract proposal revisions.
+- Structurally validated but semantically uninterpreted proposal and financial-term JSON.
+- Optional proposed effective dates stored as proposal metadata only.
+- Doctor-party and exact Facility-scoped contract/affiliation read authorization.
+- Transactionally locked proposal revision sequencing plus audit events.
+- No product-facing affiliation/contract mutation routes while DR-013/DR-014/DR-015/DR-042 remain unresolved.
+
+See `docs/MILESTONE_04_AFFILIATIONS_CONTRACTS.md` and `docs/CONTRACT_VERSIONING_MODEL.md`.
+
 ## Local start
 
 ```bash
@@ -70,30 +84,12 @@ npm run migrate
 npm run dev:api
 ```
 
-Development identity request example:
-
-```bash
-curl -H 'x-dev-sub: demo-doctor-1' -H 'x-dev-email: doctor@example.test' \
-  http://localhost:4000/v1/session/context
-
-curl -X POST -H 'content-type: application/json' \
-  -H 'x-dev-sub: demo-doctor-1' -H 'x-dev-email: doctor@example.test' \
-  -d '{"role":"DOCTOR","preferredLocale":"fr"}' \
-  http://localhost:4000/v1/accounts/bootstrap
-
-curl -H 'x-dev-sub: demo-doctor-1' \
-  http://localhost:4000/v1/doctors/me/profile
-
-curl -X PATCH -H 'content-type: application/json' \
-  -H 'x-dev-sub: demo-doctor-1' \
-  -d '{"version":1,"displayName":"Dr Exemple","languageCodes":["fr","en"]}' \
-  http://localhost:4000/v1/doctors/me/profile
-```
-
 ## Product-decision discipline
 
 The schema may be structurally capable of multiple roles, but the bootstrap endpoint creates exactly one approved initial role. It does not add additional roles to an existing account because DR-001/DR-040 remain **PRODUCT DECISION REQUIRED**.
 
-Facility permission bundles are normalized but no invented role catalog is seeded while DR-016 remains unresolved. The Facility registration relationship permits scoped reading only when the role carries `facility.profile.read`; it does not silently establish permanent owner/admin authority.
+Facility permission bundles are normalized but no invented role catalog is seeded while DR-016 remains unresolved. The Facility registration relationship does not silently establish permanent owner/admin or commercial authority.
 
-Milestone 2 intentionally rejects unknown profile fields rather than turning unsupplied Figma details into an accidental API contract. See `docs/MILESTONE_02_PROFILES_TAXONOMY.md`.
+Milestone 2 intentionally rejects unknown profile fields rather than turning unsupplied Figma details into an accidental API contract.
+
+Milestone 4 deliberately separates technical contract history from business contract lifecycle. Proposal/counter/accept/reject/expire/suspend semantics, commercial authority, effective-term rules and affiliation initiation/state transitions remain behind DR-013/DR-014/DR-015/DR-042.

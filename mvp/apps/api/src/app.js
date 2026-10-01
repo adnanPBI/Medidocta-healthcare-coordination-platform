@@ -8,6 +8,7 @@ import { loadSessionContext } from './modules/session/session-context.service.js
 import { registerTaxonomyRoutes } from './modules/taxonomy/taxonomy.routes.js';
 import { registerProfileRoutes } from './modules/profiles/profile.routes.js';
 import { registerFacilityRbacRoutes } from './modules/facility-rbac/facility-rbac.routes.js';
+import { registerAffiliationRoutes } from './modules/affiliations/affiliation.routes.js';
 
 export async function buildApp({ config, pool }) {
   const app = Fastify({ logger: { redact: ['req.headers.authorization', 'req.headers.cookie'] } });
@@ -52,5 +53,6 @@ export async function buildApp({ config, pool }) {
   await registerSessionRoutes(app, { pool, requireIdentity });
   await registerProfileRoutes(app, { pool, requireRegisteredContext });
   await registerFacilityRbacRoutes(app, { pool, requireRegisteredContext });
+  await registerAffiliationRoutes(app, { pool, requireRegisteredContext });
   return app;
 }
