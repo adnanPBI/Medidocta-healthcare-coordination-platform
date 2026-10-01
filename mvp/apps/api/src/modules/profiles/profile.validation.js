@@ -51,7 +51,6 @@ export function validateDoctorProfilePatch(input = {}) {
     fail('PRIMARY_SPECIALTY_NOT_SELECTED', 'primarySpecialtyCode must be present in specialtyCodes');
   }
   if (Object.keys(out).length === 1) fail('EMPTY_PROFILE_PATCH', 'At least one profile field must be supplied');
-  if (Object.keys(out).length === 1) fail('EMPTY_PROFILE_PATCH', 'At least one profile field must be supplied');
   return out;
 }
 
@@ -61,5 +60,6 @@ export function validateFacilityProfilePatch(input = {}) {
   if ('displayName' in input) out.displayName = nullableText(input.displayName, 'displayName', 160);
   if ('publicSummary' in input) out.publicSummary = nullableText(input.publicSummary, 'publicSummary', 2000);
   if ('cityCode' in input) out.cityCode = input.cityCode === null ? null : normalizeTaxonomyCode(input.cityCode);
+  if (Object.keys(out).length === 1) fail('EMPTY_PROFILE_PATCH', 'At least one profile field must be supplied');
   return out;
 }
