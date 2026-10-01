@@ -1,0 +1,22 @@
+sequenceDiagram
+  participant UI as Patient/Facility UI
+  participant API as Booking API
+  participant DB as PostgreSQL
+  participant OB as Outbox
+  participant N as Notification Worker
+  UI->>API: POST booking + idempotency key
+  API->>API: authorize role + resource scope
+  API->>DB: BEGIN transaction
+  API->>DB: revalidate affiliation/availability
+  API->>DB: enforce global Doctor overlap/capacity
+  alt conflict
+    DB-->>API: conflict
+    API-->>UI: 409 BOOKING_CONFLICT
+  else commit
+    API->>DB: insert canonical Appointment
+    API->>DB: insert OutboxEvent
+    API->>DB: COMMIT
+    API-->>UI: 201 Appointment
+    OB-->>N: committed event
+    N-->>UI: notification provider delivery
+  end
