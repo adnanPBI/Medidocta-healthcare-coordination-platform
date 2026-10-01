@@ -39,7 +39,7 @@ export async function bootstrapAccount(pool, identity, input) {
 
     await client.query(`
       insert into audit_events(actor_account_id, action_code, resource_type, resource_id, metadata)
-      values ($1, 'ACCOUNT_BOOTSTRAPPED', 'ACCOUNT', $1, jsonb_build_object('initial_role', $2))
+      values ($1, 'ACCOUNT_BOOTSTRAPPED', 'ACCOUNT', $1, jsonb_build_object('initial_role', $2::text))
     `, [accountId, role]);
     await client.query('commit');
     return { accountId, created: true };

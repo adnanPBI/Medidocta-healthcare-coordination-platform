@@ -4,8 +4,8 @@ This directory is the production MVP implementation track. The repository-root s
 
 ## Milestone sequence
 
-1. **Foundation, environments, CI/CD, identity/session** - started here.
-2. Canonical profiles, taxonomy/search, verification.
+1. **Foundation, environments, CI/CD, identity/session** - implemented.
+2. **Canonical Doctor/Facility profiles and taxonomy foundation** - implemented to the currently approved boundary; verification/search publishing remains gated.
 3. Facility staff, RBAC and resource scope.
 4. Doctor-Facility affiliations and contracts.
 5. Facility-specific availability and slot projection.
@@ -24,9 +24,24 @@ This directory is the production MVP implementation track. The repository-root s
 - Idempotent account bootstrap for approved initial roles: Patient, Doctor, Facility.
 - `GET /v1/session/context` resolving roles, permissions, facility memberships and Doctor affiliations server-side.
 - Normalized identity/RBAC/facility-membership/affiliation foundation schema.
-- Conservative permission seed. Facility staff bundles remain configurable and unseeded while DR-016 is unresolved.
+- Conservative permission seed.
 - Append-only account bootstrap audit event.
-- Pure authorization policy tests and config safety tests.
+
+## Milestone 2 implemented
+
+- Canonical Doctor profile with optimistic versioning.
+- Canonical Healthcare Facility profile with optimistic versioning.
+- Normalized specialty, city and language taxonomies using stable codes + localized FR/EN labels.
+- Doctor specialty and language relationships.
+- Public taxonomy read APIs.
+- Permission-aware Doctor self profile APIs.
+- Permission-aware Facility profile APIs.
+- Registered-Facility references in server-derived session context.
+- Facility update stays blocked unless explicit `facility.profile.update` is granted in resource scope.
+- Specialty and city catalogs are intentionally not invented or seeded.
+- Verification lifecycle and public search/discoverability remain gated by product decisions/Figma validation.
+- PostgreSQL-backed API integration test in CI.
+- Checksum-protected migration runner.
 
 ## Local start
 
@@ -34,24 +49,35 @@ This directory is the production MVP implementation track. The repository-root s
 cd mvp
 cp .env.example .env
 docker compose up -d postgres
-psql "$DATABASE_URL" -f db/migrations/001_identity_session_context.sql
-psql "$DATABASE_URL" -f db/migrations/002_foundation_rbac_seed.sql
 npm install
+npm run migrate
 npm run dev:api
 ```
 
 Development identity request example:
 
 ```bash
-curl -H 'x-dev-sub: demo-patient-1' -H 'x-dev-email: patient@example.test' \
+curl -H 'x-dev-sub: demo-doctor-1' -H 'x-dev-email: doctor@example.test' \
   http://localhost:4000/v1/session/context
 
 curl -X POST -H 'content-type: application/json' \
-  -H 'x-dev-sub: demo-patient-1' -H 'x-dev-email: patient@example.test' \
-  -d '{"role":"PATIENT","preferredLocale":"fr"}' \
+  -H 'x-dev-sub: demo-doctor-1' -H 'x-dev-email: doctor@example.test' \
+  -d '{"role":"DOCTOR","preferredLocale":"fr"}' \
   http://localhost:4000/v1/accounts/bootstrap
+
+curl -H 'x-dev-sub: demo-doctor-1' \
+  http://localhost:4000/v1/doctors/me/profile
+
+curl -X PATCH -H 'content-type: application/json' \
+  -H 'x-dev-sub: demo-doctor-1' \
+  -d '{"version":1,"displayName":"Dr Exemple","languageCodes":["fr","en"]}' \
+  http://localhost:4000/v1/doctors/me/profile
 ```
 
 ## Product-decision discipline
 
-The schema may be structurally capable of multiple roles, but the bootstrap endpoint creates exactly one approved initial role. It does not add additional roles to an existing account because DR-001/DR-040 remain **PRODUCT DECISION REQUIRED**. Similarly, facility permission bundles are normalized but no invented role catalog is seeded while DR-016 remains unresolved.
+The schema may be structurally capable of multiple roles, but the bootstrap endpoint creates exactly one approved initial role. It does not add additional roles to an existing account because DR-001/DR-040 remain **PRODUCT DECISION REQUIRED**.
+
+Facility permission bundles are normalized but no invented role catalog is seeded while DR-016 remains unresolved. The Facility registration relationship permits scoped reading only when the role carries `facility.profile.read`; it does not silently establish permanent owner/admin authority.
+
+Milestone 2 intentionally rejects unknown profile fields rather than turning unsupplied Figma details into an accidental API contract. See `docs/MILESTONE_02_PROFILES_TAXONOMY.md`.

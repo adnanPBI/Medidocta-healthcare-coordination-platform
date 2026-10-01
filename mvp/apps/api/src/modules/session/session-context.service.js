@@ -14,7 +14,7 @@ export async function loadSessionContext(pool, subject) {
     const row = accountResult.rows[0];
     if (!row) return null;
 
-    const [roleResult, facilityResult, affiliationResult] = await Promise.all([
+    const [roleResult, facilityResult, affiliationResult, registeredFacilityResult] = await Promise.all([
       client.query(`
         select ar.role_code, coalesce(array_agg(distinct rp.permission_code)
           filter (where rp.permission_code is not null), '{}') as permissions
@@ -39,7 +39,13 @@ export async function loadSessionContext(pool, subject) {
         from doctor_facility_affiliations
         where doctor_id = $1 and status <> 'ARCHIVED'
         order by facility_id
-      `, [row.doctor_profile_id]) : Promise.resolve({ rows: [] })
+      `, [row.doctor_profile_id]) : Promise.resolve({ rows: [] }),
+      client.query(`
+        select id, display_name, verification_status, profile_version
+        from healthcare_facilities
+        where registration_account_id = $1
+        order by created_at, id
+      `, [row.id])
     ]);
 
     const roles = roleResult.rows.map(r => ({ role: r.role_code, permissions: r.permissions }));
@@ -66,6 +72,12 @@ export async function loadSessionContext(pool, subject) {
       permissions,
       patientProfileId: row.patient_profile_id,
       doctorProfileId: row.doctor_profile_id,
+      registeredFacilities: registeredFacilityResult.rows.map(r => ({
+        facilityId: r.id,
+        displayName: r.display_name,
+        verificationStatus: r.verification_status,
+        version: r.profile_version
+      })),
       facilityMemberships,
       doctorAffiliations: affiliationResult.rows.map(r => ({
         affiliationId: r.id,

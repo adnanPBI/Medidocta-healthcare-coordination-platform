@@ -4,6 +4,9 @@ import helmet from '@fastify/helmet';
 import { buildAuthenticator } from './modules/auth/authenticate.js';
 import { registerHealthRoutes } from './modules/health/health.routes.js';
 import { registerSessionRoutes } from './modules/session/session.routes.js';
+import { loadSessionContext } from './modules/session/session-context.service.js';
+import { registerTaxonomyRoutes } from './modules/taxonomy/taxonomy.routes.js';
+import { registerProfileRoutes } from './modules/profiles/profile.routes.js';
 
 export async function buildApp({ config, pool }) {
   const app = Fastify({ logger: { redact: ['req.headers.authorization', 'req.headers.cookie'] } });
@@ -11,8 +14,20 @@ export async function buildApp({ config, pool }) {
   await app.register(cors, { origin: config.corsOrigins, credentials: true });
 
   const authenticate = buildAuthenticator(config);
+
   async function requireIdentity(request) {
     request.identity = await authenticate(request);
+  }
+
+  async function requireRegisteredContext(request) {
+    request.identity = await authenticate(request);
+    request.context = await loadSessionContext(pool, request.identity.subject);
+    if (!request.context) {
+      const error = new Error('Registered Medidocta account required');
+      error.statusCode = 403;
+      error.code = 'ACCOUNT_NOT_REGISTERED';
+      throw error;
+    }
   }
 
   app.setErrorHandler((error, request, reply) => {
@@ -26,6 +41,8 @@ export async function buildApp({ config, pool }) {
   });
 
   await registerHealthRoutes(app, { pool });
+  await registerTaxonomyRoutes(app, { pool });
   await registerSessionRoutes(app, { pool, requireIdentity });
+  await registerProfileRoutes(app, { pool, requireRegisteredContext });
   return app;
 }
