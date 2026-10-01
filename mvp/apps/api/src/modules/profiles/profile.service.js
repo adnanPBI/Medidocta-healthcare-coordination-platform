@@ -171,7 +171,7 @@ export async function updateDoctorProfile(pool, accountId, doctorId, rawInput, l
     await client.query(`
       insert into audit_events(actor_account_id, action_code, resource_type, resource_id, metadata)
       values ($1, 'DOCTOR_PROFILE_UPDATED', 'DOCTOR_PROFILE', $2,
-              jsonb_build_object('previous_version', $3, 'new_version', $3 + 1))
+              jsonb_build_object('previous_version', $3::integer, 'new_version', $3::integer + 1))
     `, [accountId, doctorId, input.version]);
     await client.query('commit');
     return getDoctorProfile(pool, doctorId, localeValue);
@@ -259,7 +259,7 @@ export async function updateFacilityProfile(pool, accountId, facilityId, rawInpu
     await client.query(`
       insert into audit_events(actor_account_id, action_code, resource_type, resource_id, metadata)
       values ($1, 'FACILITY_PROFILE_UPDATED', 'HEALTHCARE_FACILITY', $2,
-              jsonb_build_object('previous_version', $3, 'new_version', $3 + 1))
+              jsonb_build_object('previous_version', $3::integer, 'new_version', $3::integer + 1))
     `, [accountId, facilityId, input.version]);
     await client.query('commit');
     return getFacilityProfile(pool, facilityId, localeValue);
