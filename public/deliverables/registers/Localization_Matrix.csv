@@ -1,0 +1,12 @@
+Concern,Recommended architecture,Rule / acceptance gate
+Locale identifiers,Use fr and en initially with country variants later if required,One Account.preferred_locale and no duplicate account/business records
+UI strings,Versioned translation catalogs by module,No workflow logic based on translated text
+Backend status/errors,Stable machine codes and structured error payloads,Client translates user-facing copy
+Dates/times,Store appointment instants in UTC and facility IANA timezone for recurrence/display,Never store formatted strings as canonical values
+Recurring availability,Evaluate local recurring rules in facility timezone then project UTC instants,DST ambiguity policy documented for expansion markets
+Numbers/currency,Locale-aware formatting with ISO currency code,Do not parse localized display strings as money
+Notification templates,Template key + locale + version rendered after outbox commit,Template content never changes domain data
+Taxonomies,Canonical codes/IDs with localized labels,Search/filter values do not fork by language
+User-entered content,Store as entered unless explicit translated-field workflow is approved,No automatic duplicate language copy
+Validation/error layout,Test long French labels/pluralization/wrapping/form associations,Critical flows pass in both locales
+Deep links,Locale changes template only and links target canonical IDs,Authorization reevaluated when opened
