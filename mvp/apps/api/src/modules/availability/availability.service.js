@@ -141,6 +141,13 @@ export async function appendAvailabilityRevisionForAuthorizedActor(pool, {
       throw notFound('AVAILABILITY_SCHEDULE_NOT_FOUND', 'Availability schedule not found for affiliation');
     }
 
+    if (Number(schedule.version) !== input.expectedVersion) {
+      throw conflict(
+        'AVAILABILITY_VERSION_CONFLICT',
+        'Availability schedule has changed; reload before saving'
+      );
+    }
+
     const nextRevision = Number(schedule.version) + 1;
     const revisionResult = await client.query(`
       insert into availability_schedule_revisions(
