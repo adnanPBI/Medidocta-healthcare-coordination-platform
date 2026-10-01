@@ -1,0 +1,13 @@
+ID,Non-negotiable principle,Implementation consequence,Acceptance / anti-pattern gate,Evidence status
+AP-001,"ONE platform, not three products","One responsive client/deployment and one backend domain model","No separate Patient/Doctor/Facility databases, auth stacks or appointment models","CONFIRMED BY BRIEF"
+AP-002,"Authentication -> Role -> Permission -> Interface","Backend resolves role, permissions and scope after authentication","Returning login does not ask user to choose original role again unless later approved","CONFIRMED BY BRIEF"
+AP-003,"Same account and canonical data on every device","Phone, tablet and browser read/write the same server-side resources","No device-specific business-data copies","CONFIRMED BY BRIEF"
+AP-004,"ONE canonical Appointment","Every party references the same appointment_id and lifecycle","No PatientAppointment/DoctorAppointment/FacilityAppointment shadow copies","CONFIRMED BY BRIEF"
+AP-005,"Doctor-Facility Affiliation is first-class","Contract, terms, working days and availability are scoped to affiliation","Do not store facility-specific terms directly on DoctorProfile","CONFIRMED BY BRIEF"
+AP-006,"Doctor occupancy is global across facilities","Overlapping committed Appointment blocks the Doctor regardless of facility","DB overlap protection keyed by Doctor, not only affiliation","CONFIRMED BY BRIEF"
+AP-007,"Facility staff access is resource-scoped","Role grants capability; membership/resource scope determines where it applies","Facility A permissions cannot imply Facility B or finance access","CONFIRMED BY BRIEF"
+AP-008,"Frontend availability is not authoritative","Booking/reschedule revalidates inside backend/database transaction","Displayed slot alone never guarantees success","CONFIRMED BY BRIEF"
+AP-009,"Canonical codes, localized presentation","FR/EN labels/templates do not duplicate business data","No language-specific appointment/profile/contract copies","CONFIRMED BY BRIEF"
+AP-010,"Administration uses the same domain records","Internal admin uses privileged policies over canonical entities","No admin-only shadow data model","TECHNICAL RECOMMENDATION"
+AP-011,"Arrival facts are independent","Patient arrival and Doctor arrival may both be true","Do not model them as mutually exclusive top-level states","TECHNICAL CORRECTION"
+AP-012,"Committed domain event before provider delivery","Outbox is written in same transaction; worker delivers later","Provider failure cannot roll back committed appointment","TECHNICAL RECOMMENDATION"
