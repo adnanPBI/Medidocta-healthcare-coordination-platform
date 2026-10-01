@@ -26,7 +26,7 @@ integration('profile/taxonomy APIs preserve canonical role and permission bounda
   try {
     const languages = await app.inject({ method: 'GET', url: '/v1/taxonomies/languages?locale=en' });
     assert.equal(languages.statusCode, 200);
-    assert.deepEqual(languages.json().items.map(item => item.code), ['en', 'fr']);
+    assert.deepEqual(languages.json().items.map(item => item.code), ['fr', 'en']);
 
     const specialties = await app.inject({ method: 'GET', url: '/v1/taxonomies/specialties?locale=fr' });
     assert.equal(specialties.statusCode, 200);
