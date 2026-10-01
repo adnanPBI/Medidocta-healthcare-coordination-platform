@@ -50,6 +50,8 @@ export function validateDoctorProfilePatch(input = {}) {
   if (out.primarySpecialtyCode && out.specialtyCodes && !out.specialtyCodes.includes(out.primarySpecialtyCode)) {
     fail('PRIMARY_SPECIALTY_NOT_SELECTED', 'primarySpecialtyCode must be present in specialtyCodes');
   }
+  if (Object.keys(out).length === 1) fail('EMPTY_PROFILE_PATCH', 'At least one profile field must be supplied');
+  if (Object.keys(out).length === 1) fail('EMPTY_PROFILE_PATCH', 'At least one profile field must be supplied');
   return out;
 }
 
