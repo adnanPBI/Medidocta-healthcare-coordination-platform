@@ -48,7 +48,9 @@ create table if not exists contract_proposal_revisions (
     or proposed_effective_until >= proposed_effective_from
   ),
   check (jsonb_typeof(proposal_payload) = 'object'),
-  check (jsonb_typeof(financial_terms_payload) = 'object')
+  check (jsonb_typeof(financial_terms_payload) = 'object'),
+  check (octet_length(proposal_payload::text) <= 65536),
+  check (octet_length(financial_terms_payload::text) <= 65536)
 );
 
 create or replace function prevent_contract_revision_mutation()
