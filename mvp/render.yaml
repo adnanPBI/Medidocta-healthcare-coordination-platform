@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: medidocta-mvp-api
+    runtime: node
+    rootDir: mvp/apps/api
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health/live
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSL
+        value: "true"
+      - key: CORS_ORIGINS
+        sync: false
+      - key: AUTH_MODE
+        value: oidc
+      - key: AUTH_ISSUER
+        sync: false
+      - key: AUTH_AUDIENCE
+        sync: false
+      - key: AUTH_JWKS_URL
+        sync: false
