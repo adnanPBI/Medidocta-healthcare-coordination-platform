@@ -1,0 +1,16 @@
+Canonical resource,Owning module,Authoritative write path,Read consumers,Duplication anti-pattern,Decision boundary
+Account / session context,Identity & Access,Identity provider + Account service,All role interfaces,Separate device/role account copies,DR-001
+PatientProfile,Profiles,Patient profile API,Patient + authorized appointment projections,Role/device profile duplicates,DR-003
+DoctorProfile,Profiles,Doctor profile API,Patient search + Doctor + Facility + Admin,Per-facility Doctor copies,DR-019
+HealthcareFacility,Profiles,Facility profile API,Search + Doctor + Facility + Admin,Separate hospital-portal record,DR-002
+FacilityStaffMembership,Identity & Access,Facility staff administration,Facility UI + authorization + Admin,Permission stored only in UI claims,DR-016
+DoctorFacilityAffiliation,Affiliations,Affiliation API,Doctor + Facility + Contracts + Availability + Booking + Admin,Duplicated relation under Doctor and Facility,DR-042
+Contract / FinancialTerms,Contracting,Versioned contract commands,Doctor + authorized Facility staff + Admin,Editable unversioned finance fields on profiles,DR-013 to DR-015
+AvailabilityRule / Exception,Scheduling,Affiliation-scoped availability API,Doctor + Facility + booking projection,Independent Doctor/Facility calendars as truth,DR-007/008/010
+Slot projection,Scheduling read model,Generated from rules minus occupancy,Search + booking UI,Treating displayed slot as booking authority,DR-009
+Appointment,Booking & Appointment,Transactional booking/appointment commands,Patient + Doctor + Facility + Admin,Role-specific appointment copies,DR-004 to DR-006
+AppointmentEvent,Appointment,Append inside canonical appointment transaction,History/audit projections,Separate histories per role,DR-021/022
+BookingIdempotency,Booking,Booking command boundary,Booking API,Client-only duplicate suppression,Technical recommendation
+OutboxEvent,Messaging,Same transaction as business change,Background workers,Direct provider call inside transaction,Technical recommendation
+Notification,Notifications,Worker/provider adapter,Authorized recipient,Provider response as domain truth,DR-023+
+FileObject,Files,Private object storage metadata,Verification/support modules,Public unrestricted uploads,DR-019
