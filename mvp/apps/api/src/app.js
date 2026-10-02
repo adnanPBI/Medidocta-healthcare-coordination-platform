@@ -11,6 +11,7 @@ import { registerFacilityRbacRoutes } from './modules/facility-rbac/facility-rba
 import { registerAffiliationRoutes } from './modules/affiliations/affiliation.routes.js';
 import { registerAvailabilityRoutes } from './modules/availability/availability.routes.js';
 import { registerBookingRoutes } from './modules/booking/booking.routes.js';
+import { registerOperationsRoutes } from './modules/operations/operations.routes.js';
 
 export async function buildApp({ config, pool }) {
   const app = Fastify({ logger: { redact: ['req.headers.authorization', 'req.headers.cookie'] } });
@@ -58,5 +59,6 @@ export async function buildApp({ config, pool }) {
   await registerAffiliationRoutes(app, { pool, requireRegisteredContext });
   await registerAvailabilityRoutes(app, { pool, requireRegisteredContext });
   await registerBookingRoutes(app, { pool, requireRegisteredContext });
+  await registerOperationsRoutes(app, { pool, requireRegisteredContext });
   return app;
 }
