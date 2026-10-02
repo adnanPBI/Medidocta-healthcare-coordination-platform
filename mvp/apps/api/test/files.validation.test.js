@@ -61,3 +61,16 @@ test('attachment link uses stable resource and relation codes', () => {
   assert.equal(value.resourceType, 'APPOINTMENT');
   assert.equal(value.relationCode, 'SUPPORTING_DOCUMENT');
 });
+
+
+test('file links cannot target unsupported or not-yet-implemented resource types', () => {
+  assert.throws(
+    () => validateFileAttachment({
+      fileId,
+      resourceType: 'VERIFICATION_CASE',
+      resourceId,
+      relationCode: 'EVIDENCE'
+    }),
+    error => error.code === 'FILE_RESOURCE_TYPE_UNSUPPORTED'
+  );
+});
