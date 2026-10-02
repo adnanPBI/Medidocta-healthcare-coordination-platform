@@ -13,5 +13,6 @@ function walk(dir) {
   }
 }
 for (const root of roots) walk(root);
+files.push('../app.js');
 for (const file of files) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 console.log(`syntax-ok: ${files.length} JavaScript files`);
