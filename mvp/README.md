@@ -9,7 +9,7 @@ This directory is the production MVP implementation track. The repository-root s
 3. **Facility staff, RBAC and resource scope** - security substrate and read APIs implemented; product mutation flows remain decision-gated.
 4. **Doctor-Facility affiliations and contract/versioned financial-term foundation** - canonical read model and append-only proposal substrate implemented; lifecycle/authority/effective-term mutations remain decision-gated.
 5. **Facility-specific availability and slot projection** - versioned schedule history, explicit IANA timezone handling, candidate slot projection and global Doctor occupancy foundation implemented; scheduling policy mutations remain decision-gated.
-6. Transactional booking and canonical Appointment.
+6. **Transactional booking and ONE canonical Appointment** - idempotent self-Patient booking, backend schedule revalidation, global Doctor occupancy acquisition, append-only event history and transactional outbox implemented; lifecycle/reschedule/cancel/capacity/financial policy remains decision-gated.
 7. Reception, arrival, rooms and consultation operations.
 8. Notifications, files, audit and administration.
 9. Responsive + FR/EN hardening.
@@ -90,6 +90,23 @@ See `docs/MILESTONE_04_AFFILIATIONS_CONTRACTS.md` and `docs/CONTRACT_VERSIONING_
 
 See `docs/MILESTONE_05_AVAILABILITY_PROJECTION.md` and `docs/AVAILABILITY_PROJECTION_MODEL.md`.
 
+## Milestone 6 implemented
+
+- ONE canonical `appointments` table shared by Patient, Doctor and Facility views.
+- Separate booking actor and Patient subject identities.
+- Patient self-booking only while DR-003 is unresolved.
+- Required `Idempotency-Key` with normalized request hash and success replay.
+- Current schedule-revision revalidation inside the booking transaction.
+- Fail-closed handling when unresolved exception precedence overlaps the requested interval.
+- Global Doctor occupancy inserted in the same transaction as the Appointment.
+- Deterministic `409 BOOKING_CONFLICT` on same-Doctor overlap, including cross-Facility races.
+- Append-only `APPOINTMENT_CREATED` event history.
+- Transactional `APPOINTMENT_CREATED` outbox event; no provider call inside the booking transaction.
+- Shared Appointment read/list APIs with Patient/Doctor/Facility resource scope.
+- No cancellation, rescheduling, arrival, final lifecycle, group-capacity or financial policy invented.
+
+See `docs/MILESTONE_06_TRANSACTIONAL_BOOKING.md` and `docs/BOOKING_TRANSACTION_MODEL.md`.
+
 ## Local start
 
 ```bash
@@ -112,3 +129,5 @@ Milestone 2 intentionally rejects unknown profile fields rather than turning uns
 Milestone 4 deliberately separates technical contract history from business contract lifecycle. Proposal/counter/accept/reject/expire/suspend semantics, commercial authority, effective-term rules and affiliation initiation/state transitions remain behind DR-013/DR-014/DR-015/DR-042.
 
 Milestone 5 deliberately separates candidate slot projection from booking authority. Exception precedence, working-day enforcement, timezone policy, booking horizon, duration/granularity, buffers and behavior around existing appointments remain behind DR-007/DR-008/DR-010/DR-012/DR-043/DR-044/DR-045/DR-046.
+
+Milestone 6 commits only the safe booking core. Booking for another person, final Appointment lifecycle, cancellation, rescheduling, capacity exceptions, arrival events and financial/currency snapshots remain behind DR-003/DR-004/DR-005/DR-006/DR-009/DR-021/DR-022/DR-049/DR-050.
