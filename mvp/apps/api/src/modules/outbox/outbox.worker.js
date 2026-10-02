@@ -280,6 +280,13 @@ export async function runOutboxBatch(pool, {
   const eventTypes = handlerEntries.map(([eventType]) => eventType);
   const worker = normalizeWorkerId(workerId);
 
+  if (!Number.isInteger(retryDelaySeconds) || retryDelaySeconds < 1 || retryDelaySeconds > 86400) {
+    const error = new Error('retryDelaySeconds must be an integer from 1 to 86400');
+    error.code = 'INVALID_OUTBOX_RETRY';
+    error.statusCode = 422;
+    throw error;
+  }
+
   if (!eventTypes.length) {
     return {
       claimed: 0,
