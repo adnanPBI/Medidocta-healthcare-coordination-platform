@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-const roots = ['apps/api/src', 'apps/api/test', 'scripts'];
+const roots = ['apps/api/src', 'apps/api/test', 'apps/web/src', 'apps/web/test', 'scripts'];
 const files = [];
 function walk(dir) {
   for (const name of readdirSync(dir)) {
