@@ -339,35 +339,46 @@ export async function createFacilityRoomForAuthorizedActor(pool, {
   ...rawInput
 }) {
   const input = validateRoomDefinition(rawInput);
-  const result = await pool.query(`
-    insert into facility_rooms(
-      facility_id, code, display_name, metadata
-    )
-    values ($1, $2, $3, $4::jsonb)
-    returning *
-  `, [
-    input.facilityId,
-    input.code,
-    input.displayName,
-    JSON.stringify(input.metadata)
-  ]);
+  const client = await pool.connect();
 
-  await pool.query(`
-    insert into audit_events(
-      actor_account_id, action_code, resource_type, resource_id, metadata
-    )
-    values (
-      $1, 'FACILITY_ROOM_CREATED', 'FACILITY_ROOM', $2,
-      jsonb_build_object('facility_id', $3::text, 'room_code', $4::text)
-    )
-  `, [
-    actorAccountId,
-    result.rows[0].id,
-    input.facilityId,
-    input.code
-  ]);
+  try {
+    await client.query('begin');
+    const result = await client.query(`
+      insert into facility_rooms(
+        facility_id, code, display_name, metadata
+      )
+      values ($1, $2, $3, $4::jsonb)
+      returning *
+    `, [
+      input.facilityId,
+      input.code,
+      input.displayName,
+      JSON.stringify(input.metadata)
+    ]);
 
-  return result.rows[0];
+    await client.query(`
+      insert into audit_events(
+        actor_account_id, action_code, resource_type, resource_id, metadata
+      )
+      values (
+        $1, 'FACILITY_ROOM_CREATED', 'FACILITY_ROOM', $2,
+        jsonb_build_object('facility_id', $3::text, 'room_code', $4::text)
+      )
+    `, [
+      actorAccountId,
+      result.rows[0].id,
+      input.facilityId,
+      input.code
+    ]);
+
+    await client.query('commit');
+    return result.rows[0];
+  } catch (error) {
+    await client.query('rollback');
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 export async function appendRoomAssignmentRevisionForAuthorizedActor(pool, {
