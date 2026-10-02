@@ -1,4 +1,4 @@
-import { normalizeLocale } from '../taxonomy/taxonomy.validation.js';
+import { resolveRequestLocale } from '../localization/localization.js';
 import {
   getDoctorProfile,
   getFacilityProfile,
@@ -11,7 +11,7 @@ import {
 } from './profile.authorization.js';
 
 function localeFor(request) {
-  return normalizeLocale(request.query?.locale ?? request.headers['accept-language'] ?? request.context?.account?.preferredLocale);
+  return resolveRequestLocale(request);
 }
 
 export async function registerProfileRoutes(app, deps) {

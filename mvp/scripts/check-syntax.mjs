@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-const roots = ['apps/api/src', 'apps/api/test', 'scripts'];
+const roots = ['apps/api/src', 'apps/api/test', 'apps/web/src', 'apps/web/test', 'scripts'];
 const files = [];
 function walk(dir) {
   for (const name of readdirSync(dir)) {
@@ -13,5 +13,6 @@ function walk(dir) {
   }
 }
 for (const root of roots) walk(root);
+files.push('../app.js');
 for (const file of files) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 console.log(`syntax-ok: ${files.length} JavaScript files`);
