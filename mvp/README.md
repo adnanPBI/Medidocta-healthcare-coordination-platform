@@ -12,7 +12,7 @@ This directory is the production MVP implementation track. The repository-root s
 6. **Transactional booking and ONE canonical Appointment** - idempotent self-Patient booking, backend schedule revalidation, global Doctor occupancy acquisition, append-only event history and transactional outbox implemented; lifecycle/reschedule/cancel/capacity/financial policy remains decision-gated.
 7. **Reception, independent Patient/Doctor arrival facts, room allocation foundation and consultation operations** - append-only operational facts, Facility reception read model and versioned room assignment history implemented; write authority/reversibility/exclusivity/lifecycle rules remain decision-gated.
 8. **Transactional outbox worker, notification delivery foundation, files/attachments metadata, audit and administration** - leased retry-safe delivery, policy-bound notification intents, append-only file metadata and privileged admin oversight implemented; channel/consent/template/storage-security policy remains gated.
-9. Responsive + FR/EN hardening.
+9. **Responsive architecture + FR/EN localization hardening** - one shared application-shell contract, phone/tablet/desktop presentation modes, persisted Account locale, weighted locale negotiation, stable error translation keys, shared FR/EN catalogs and accessibility hardening implemented.
 10. Security/performance/accessibility/acceptance and production readiness.
 
 ## Milestone 1 implemented
@@ -168,3 +168,21 @@ Milestone 6 commits only the safe booking core. Booking for another person, fina
 Milestone 7 adds operational facts without inventing operational policy. Patient/Doctor arrival write authority and reversibility remain behind DR-021/DR-022; start/complete consultation does not silently define the DR-004 lifecycle; room exclusivity remains PRODUCT DECISION REQUIRED.
 
 Milestone 8 adds asynchronous delivery and administration infrastructure without inventing notification policy. DR-023 still controls event-to-recipient/channel/consent routing. The repository capability map mentions file type/size/malware policy but does not provide a dedicated approved Decision Register entry for those rules, so storage provider, upload limits, malware/quarantine, signed access and retention remain deliberately unconfigured.
+
+## Milestone 9 implemented
+
+- One shared responsive application-shell contract derived from server session context; no Patient/Doctor/Facility/device-specific application fork.
+- Phone/tablet/desktop layout contracts with canonical API identity preserved at every breakpoint.
+- Persisted `Account.preferred_locale` update API and audit trail.
+- Locale resolution: explicit request -> Account preference -> weighted Accept-Language -> French fallback.
+- Public localization capability metadata.
+- Taxonomy/profile label selection moved to the shared locale resolver.
+- Stable API error payloads now include machine `error`, `messageKey`, resolved `locale`, safe fallback `message` and `requestId`.
+- Shared FR/EN client catalogs with exact key-parity tests.
+- Presentation-only date/time/number/currency formatters requiring explicit timezone/currency identifiers.
+- Static demonstrator fully translated across interactive content, not only navigation.
+- Mobile drawer preserves every navigation destination; tablet rail and desktop sidebar use the same shell.
+- Skip navigation, keyboard drawer controls, visible focus, 44px mobile targets, semantic tabs/tables/live regions and reduced-motion support.
+- FG-013/014/015 remain Figma validation items; DR-001 and DR-012 remain PRODUCT DECISION REQUIRED.
+
+See `docs/MILESTONE_09_RESPONSIVE_LOCALIZATION.md` and `docs/RESPONSIVE_LOCALIZATION_MODEL.md`.
