@@ -13,6 +13,7 @@ import { registerAvailabilityRoutes } from './modules/availability/availability.
 import { registerBookingRoutes } from './modules/booking/booking.routes.js';
 import { registerOperationsRoutes } from './modules/operations/operations.routes.js';
 import { registerAdminRoutes } from './modules/admin/admin.routes.js';
+import { messageKeyForErrorCode, resolveRequestLocale } from './modules/localization/localization.js';
 
 export async function buildApp({ config, pool }) {
   const app = Fastify({ logger: { redact: ['req.headers.authorization', 'req.headers.cookie'] } });
@@ -45,8 +46,11 @@ export async function buildApp({ config, pool }) {
   app.setErrorHandler((error, request, reply) => {
     request.log.error({ err: error, code: error.code }, 'request failed');
     const statusCode = error.statusCode && error.statusCode >= 400 ? error.statusCode : 500;
+    const errorCode = error.code ?? (statusCode === 500 ? 'INTERNAL_ERROR' : 'REQUEST_ERROR');
     reply.code(statusCode).send({
-      error: error.code ?? (statusCode === 500 ? 'INTERNAL_ERROR' : 'REQUEST_ERROR'),
+      error: errorCode,
+      messageKey: error.messageKey ?? messageKeyForErrorCode(errorCode),
+      locale: resolveRequestLocale(request),
       message: statusCode === 500 ? 'An unexpected error occurred' : error.message,
       requestId: request.id
     });
