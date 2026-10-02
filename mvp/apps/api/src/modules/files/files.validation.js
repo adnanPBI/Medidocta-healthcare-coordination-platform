@@ -1,6 +1,13 @@
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SHA256 = /^[0-9a-f]{64}$/;
 const CODE = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,79}$/;
+const SUPPORTED_RESOURCE_TYPES = new Set([
+  'APPOINTMENT',
+  'PATIENT_PROFILE',
+  'DOCTOR_PROFILE',
+  'HEALTHCARE_FACILITY',
+  'DOCTOR_FACILITY_AFFILIATION'
+]);
 
 function fail(code, message, statusCode = 422) {
   const error = new Error(message);
@@ -66,6 +73,12 @@ export function validateFileAttachment(input = {}) {
   const relationCode = safeText(input.relationCode, 'relationCode', 80);
   if (!CODE.test(resourceType) || !CODE.test(relationCode)) {
     fail('INVALID_FILE_ATTACHMENT', 'resourceType and relationCode must be stable machine codes');
+  }
+  if (!SUPPORTED_RESOURCE_TYPES.has(resourceType)) {
+    fail(
+      'FILE_RESOURCE_TYPE_UNSUPPORTED',
+      'resourceType is not supported by the current canonical resource-binding foundation'
+    );
   }
   return {
     fileId: uuid(input.fileId, 'fileId'),
