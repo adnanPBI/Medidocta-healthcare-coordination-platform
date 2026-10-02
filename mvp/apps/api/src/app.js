@@ -58,7 +58,7 @@ export async function buildApp({ config, pool }) {
 
   await registerHealthRoutes(app, { pool });
   await registerTaxonomyRoutes(app, { pool });
-  await registerSessionRoutes(app, { pool, requireIdentity });
+  await registerSessionRoutes(app, { pool, requireIdentity, requireRegisteredContext });
   await registerProfileRoutes(app, { pool, requireRegisteredContext });
   await registerFacilityRbacRoutes(app, { pool, requireRegisteredContext });
   await registerAffiliationRoutes(app, { pool, requireRegisteredContext });
