@@ -20,10 +20,10 @@ The same account and canonical server-side data are used on smartphone, tablet a
 - A concurrency simulator for same-slot and cross-facility Doctor conflicts.
 - Server-authoritative booking flow: validate -> transactional protection -> commit canonical Appointment -> async outbox delivery.
 - RBAC with explicit resource scope.
-- FR/EN presentation switch without duplicating domain data.
+- Full FR/EN presentation switch across interactive role, booking, RBAC, review and responsive content without duplicating domain data.
 - Figma validation register and `PRODUCT DECISION REQUIRED` register.
 - MVP planning summary and downloadable editable source artifacts.
-- Responsive behavior for desktop, tablet and mobile.
+- Responsive shared shell: mobile drawer/agenda-first presentation, tablet adaptive rail/hybrid views and desktop dense operational views, all using the same canonical resources.
 
 ## Run locally
 
@@ -51,4 +51,4 @@ The formatted DOCX/PDF/XLSX client-release package remains the formal handover r
 
 ## Release
 
-Client-release baseline: **v1.1**.
+Client-release baseline: **v1.1**. MVP implementation has now reached **Milestone 09 responsive + FR/EN hardening** on the same repository.
