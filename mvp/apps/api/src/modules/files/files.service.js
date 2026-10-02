@@ -149,7 +149,8 @@ export async function attachFileObjectForAuthorizedActor(pool, {
     let idempotentReplay = false;
     if (!row) {
       const existing = await client.query(`
-        select *
+        select *,
+               metadata = $5::jsonb as metadata_matches
         from file_attachment_links
         where file_id = $1
           and resource_type = $2
@@ -159,9 +160,16 @@ export async function attachFileObjectForAuthorizedActor(pool, {
         input.fileId,
         input.resourceType,
         input.resourceId,
-        input.relationCode
+        input.relationCode,
+        JSON.stringify(input.metadata)
       ]);
       row = existing.rows[0];
+      if (!row?.metadata_matches) {
+        const error = new Error('File attachment link already exists with different metadata');
+        error.code = 'FILE_ATTACHMENT_IDEMPOTENCY_CONFLICT';
+        error.statusCode = 409;
+        throw error;
+      }
       idempotentReplay = true;
     }
 
