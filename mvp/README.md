@@ -10,7 +10,7 @@ This directory is the production MVP implementation track. The repository-root s
 4. **Doctor-Facility affiliations and contract/versioned financial-term foundation** - canonical read model and append-only proposal substrate implemented; lifecycle/authority/effective-term mutations remain decision-gated.
 5. **Facility-specific availability and slot projection** - versioned schedule history, explicit IANA timezone handling, candidate slot projection and global Doctor occupancy foundation implemented; scheduling policy mutations remain decision-gated.
 6. **Transactional booking and ONE canonical Appointment** - idempotent self-Patient booking, backend schedule revalidation, global Doctor occupancy acquisition, append-only event history and transactional outbox implemented; lifecycle/reschedule/cancel/capacity/financial policy remains decision-gated.
-7. Reception, arrival, rooms and consultation operations.
+7. **Reception, independent Patient/Doctor arrival facts, room allocation foundation and consultation operations** - append-only operational facts, Facility reception read model and versioned room assignment history implemented; write authority/reversibility/exclusivity/lifecycle rules remain decision-gated.
 8. Notifications, files, audit and administration.
 9. Responsive + FR/EN hardening.
 10. Security/performance/accessibility/acceptance and production readiness.
@@ -107,6 +107,23 @@ See `docs/MILESTONE_05_AVAILABILITY_PROJECTION.md` and `docs/AVAILABILITY_PROJEC
 
 See `docs/MILESTONE_06_TRANSACTIONAL_BOOKING.md` and `docs/BOOKING_TRANSACTION_MODEL.md`.
 
+## Milestone 7 implemented
+
+- Independent append-only Patient and Doctor arrival facts on the same canonical Appointment.
+- Duplicate arrival attempts replay the existing party fact instead of creating duplicate side effects.
+- Append-only `CONSULTATION_STARTED` / `CONSULTATION_COMPLETED` operational facts without inventing a final Appointment lifecycle.
+- Canonical Facility room resources.
+- One versioned room-assignment thread per Appointment with optimistic `expectedVersion`.
+- Room/Appointment Facility consistency enforcement.
+- No room-overlap exclusion while room exclusivity remains PRODUCT DECISION REQUIRED.
+- Reception board read API with exact Facility-scoped `facility.reception.read`.
+- Doctor/Facility operational-detail reads with exact resource scope.
+- Facility room and current-allocation read APIs.
+- Operational AppointmentEvent + transactional outbox integration.
+- Arrival/consultation/room mutation primitives implemented internally but deliberately not exposed over HTTP until write-authority rules are approved.
+
+See `docs/MILESTONE_07_RECEPTION_OPERATIONS.md` and `docs/RECEPTION_OPERATIONS_MODEL.md`.
+
 ## Local start
 
 ```bash
@@ -130,4 +147,6 @@ Milestone 4 deliberately separates technical contract history from business cont
 
 Milestone 5 deliberately separates candidate slot projection from booking authority. Exception precedence, working-day enforcement, timezone policy, booking horizon, duration/granularity, buffers and behavior around existing appointments remain behind DR-007/DR-008/DR-010/DR-012/DR-043/DR-044/DR-045/DR-046.
 
-Milestone 6 commits only the safe booking core. Booking for another person, final Appointment lifecycle, cancellation, rescheduling, capacity exceptions, arrival events and financial/currency snapshots remain behind DR-003/DR-004/DR-005/DR-006/DR-009/DR-021/DR-022/DR-049/DR-050.
+Milestone 6 commits only the safe booking core. Booking for another person, final Appointment lifecycle, cancellation, rescheduling, capacity exceptions and financial/currency snapshots remain behind DR-003/DR-004/DR-005/DR-006/DR-009/DR-049/DR-050.
+
+Milestone 7 adds operational facts without inventing operational policy. Patient/Doctor arrival write authority and reversibility remain behind DR-021/DR-022; start/complete consultation does not silently define the DR-004 lifecycle; room exclusivity remains PRODUCT DECISION REQUIRED.
