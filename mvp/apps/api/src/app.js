@@ -14,6 +14,7 @@ import { registerBookingRoutes } from './modules/booking/booking.routes.js';
 import { registerOperationsRoutes } from './modules/operations/operations.routes.js';
 import { registerAdminRoutes } from './modules/admin/admin.routes.js';
 import { messageKeyForErrorCode, resolveRequestLocale } from './modules/localization/localization.js';
+import { registerLocalizationRoutes } from './modules/localization/localization.routes.js';
 
 export async function buildApp({ config, pool }) {
   const app = Fastify({ logger: { redact: ['req.headers.authorization', 'req.headers.cookie'] } });
@@ -57,6 +58,7 @@ export async function buildApp({ config, pool }) {
   });
 
   await registerHealthRoutes(app, { pool });
+  await registerLocalizationRoutes(app);
   await registerTaxonomyRoutes(app, { pool });
   await registerSessionRoutes(app, { pool, requireIdentity, requireRegisteredContext });
   await registerProfileRoutes(app, { pool, requireRegisteredContext });
