@@ -11,7 +11,7 @@ This directory is the production MVP implementation track. The repository-root s
 5. **Facility-specific availability and slot projection** - versioned schedule history, explicit IANA timezone handling, candidate slot projection and global Doctor occupancy foundation implemented; scheduling policy mutations remain decision-gated.
 6. **Transactional booking and ONE canonical Appointment** - idempotent self-Patient booking, backend schedule revalidation, global Doctor occupancy acquisition, append-only event history and transactional outbox implemented; lifecycle/reschedule/cancel/capacity/financial policy remains decision-gated.
 7. **Reception, independent Patient/Doctor arrival facts, room allocation foundation and consultation operations** - append-only operational facts, Facility reception read model and versioned room assignment history implemented; write authority/reversibility/exclusivity/lifecycle rules remain decision-gated.
-8. Notifications, files, audit and administration.
+8. **Transactional outbox worker, notification delivery foundation, files/attachments metadata, audit and administration** - leased retry-safe delivery, policy-bound notification intents, append-only file metadata and privileged admin oversight implemented; channel/consent/template/storage-security policy remains gated.
 9. Responsive + FR/EN hardening.
 10. Security/performance/accessibility/acceptance and production readiness.
 
@@ -124,6 +124,22 @@ See `docs/MILESTONE_06_TRANSACTIONAL_BOOKING.md` and `docs/BOOKING_TRANSACTION_M
 
 See `docs/MILESTONE_07_RECEPTION_OPERATIONS.md` and `docs/RECEPTION_OPERATIONS_MODEL.md`.
 
+## Milestone 8 implemented
+
+- Leased PostgreSQL `FOR UPDATE SKIP LOCKED` outbox worker with stale-lease recovery.
+- Append-only outbox delivery-attempt history, failure metadata and retry scheduling.
+- Guarded Medidocta admin outbox read/retry APIs.
+- Notification intent foundation requiring explicit recipient/channel/template/locale; no automatic DR-023 routing.
+- Adapter-based notification delivery worker with provider retry isolation and immutable attempt history.
+- Guarded Medidocta admin notification read/retry APIs.
+- Metadata-only private file object and resource attachment-link foundations.
+- File storage locator, byte size and SHA-256 persistence without public byte/upload/signed-access APIs.
+- Append-only file metadata/link enforcement.
+- Database-enforced append-only audit events with bounded privileged audit search.
+- Audit/admin routes require explicit Medidocta internal permissions; no direct-DB normal business workflow.
+
+See `docs/MILESTONE_08_OUTBOX_NOTIFICATIONS_FILES_ADMIN.md` and `docs/ASYNC_DELIVERY_AND_FILE_MODEL.md`.
+
 ## Local start
 
 ```bash
@@ -150,3 +166,5 @@ Milestone 5 deliberately separates candidate slot projection from booking author
 Milestone 6 commits only the safe booking core. Booking for another person, final Appointment lifecycle, cancellation, rescheduling, capacity exceptions and financial/currency snapshots remain behind DR-003/DR-004/DR-005/DR-006/DR-009/DR-049/DR-050.
 
 Milestone 7 adds operational facts without inventing operational policy. Patient/Doctor arrival write authority and reversibility remain behind DR-021/DR-022; start/complete consultation does not silently define the DR-004 lifecycle; room exclusivity remains PRODUCT DECISION REQUIRED.
+
+Milestone 8 adds asynchronous delivery and administration infrastructure without inventing notification policy. DR-023 still controls event-to-recipient/channel/consent routing. The repository capability map mentions file type/size/malware policy but does not provide a dedicated approved Decision Register entry for those rules, so storage provider, upload limits, malware/quarantine, signed access and retention remain deliberately unconfigured.
