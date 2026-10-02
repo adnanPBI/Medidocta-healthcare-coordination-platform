@@ -108,11 +108,16 @@ integration('outbox worker retries provider failure without rolling back the can
     `, [appointmentId]);
     assert.equal(outbox.rowCount, 1);
     const outboxId = outbox.rows[0].id;
+    const testEventType = `M08_TEST_PROVIDER_${suffix.replaceAll('-', '_')}`;
+    await pool.query(
+      'update outbox_events set event_type = $1 where id = $2',
+      [testEventType, outboxId]
+    );
 
     const firstRun = await runOutboxBatch(pool, {
       workerId: 'test-outbox-worker',
       handlers: {
-        APPOINTMENT_CREATED: async () => {
+        [testEventType]: async () => {
           const error = new Error('simulated provider outage');
           error.code = 'PROVIDER_DOWN';
           throw error;
@@ -175,7 +180,7 @@ integration('outbox worker retries provider failure without rolling back the can
     const secondRun = await runOutboxBatch(pool, {
       workerId: 'test-outbox-worker',
       handlers: {
-        APPOINTMENT_CREATED: async event => ({
+        [testEventType]: async event => ({
           metadata: {
             transport: 'TEST',
             appointmentId: event.aggregateId
