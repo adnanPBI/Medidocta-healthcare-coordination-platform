@@ -9,7 +9,7 @@ export async function registerSessionRoutes(app, deps) {
     if (!context) {
       return { authenticated: true, registered: false, account: null, roles: [], permissions: [] };
     }
-    return { authenticated: true, registered: true, ...context, localization: localizationMetadata(resolveRequestLocale({ ...request, context })) };
+    return { authenticated: true, registered: true, ...context, localization: localizationMetadata(resolveRequestLocale({ query: request.query, headers: request.headers, context })) };
   });
 
   app.patch('/v1/accounts/me/preferences', { preHandler: deps.requireRegisteredContext }, async request => {
