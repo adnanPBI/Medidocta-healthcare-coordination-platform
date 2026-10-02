@@ -1,22 +1,18 @@
 import { listTaxonomy } from './taxonomy.service.js';
-import { normalizeLocale } from './taxonomy.validation.js';
-
-function requestedLocale(request) {
-  return normalizeLocale(request.query?.locale ?? request.headers['accept-language']);
-}
+import { resolveRequestLocale } from '../localization/localization.js';
 
 export async function registerTaxonomyRoutes(app, { pool }) {
   app.get('/v1/taxonomies/languages', async request =>
-    listTaxonomy(pool, 'languages', { locale: requestedLocale(request) })
+    listTaxonomy(pool, 'languages', { locale: resolveRequestLocale(request) })
   );
 
   app.get('/v1/taxonomies/specialties', async request =>
-    listTaxonomy(pool, 'specialties', { locale: requestedLocale(request) })
+    listTaxonomy(pool, 'specialties', { locale: resolveRequestLocale(request) })
   );
 
   app.get('/v1/taxonomies/cities', async request =>
     listTaxonomy(pool, 'cities', {
-      locale: requestedLocale(request),
+      locale: resolveRequestLocale(request),
       country: request.query?.country
     })
   );
