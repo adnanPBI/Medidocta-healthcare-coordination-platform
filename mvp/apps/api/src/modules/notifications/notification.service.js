@@ -72,11 +72,12 @@ export async function createNotificationIntentForApprovedPolicy(pool, rawInput) 
     }
 
     const existing = await client.query(`
-      select *
+      select *,
+             payload = $2::jsonb as payload_matches
       from notification_delivery_intents
       where idempotency_key = $1
       for update
-    `, [input.idempotencyKey]);
+    `, [input.idempotencyKey, JSON.stringify(input.payload)]);
     const row = existing.rows[0];
 
     const equivalent = row &&
@@ -85,7 +86,7 @@ export async function createNotificationIntentForApprovedPolicy(pool, rawInput) 
       row.channel_code === input.channelCode &&
       row.template_code === input.templateCode &&
       row.locale === input.locale &&
-      JSON.stringify(row.payload) === JSON.stringify(input.payload);
+      row.payload_matches === true;
 
     if (!equivalent) {
       throw conflict(
