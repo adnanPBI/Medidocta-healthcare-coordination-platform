@@ -26,6 +26,10 @@ function instant(value, name) {
   return parsed.toUTC();
 }
 
+export function validateResourceId(value, name = 'resourceId') {
+  return uuid(value, name);
+}
+
 export function validateIdempotencyKey(value) {
   const key = String(value ?? '').trim();
   if (!IDEMPOTENCY.test(key)) {
