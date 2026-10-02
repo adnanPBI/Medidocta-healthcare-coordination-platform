@@ -170,6 +170,86 @@ export async function listAdminNotificationIntents(pool, filters) {
   return listNotificationIntents(pool, filters);
 }
 
+export async function retryFailedNotificationIntent(pool, {
+  intentId,
+  actorAccountId
+}) {
+  const client = await pool.connect();
+  try {
+    await client.query('begin');
+    const current = await client.query(`
+      select id, status, channel_code, template_code, recipient_account_id
+      from notification_delivery_intents
+      where id = $1
+      for update
+    `, [intentId]);
+
+    const row = current.rows[0];
+    if (!row) {
+      const error = new Error('Notification intent not found');
+      error.code = 'NOTIFICATION_INTENT_NOT_FOUND';
+      error.statusCode = 404;
+      throw error;
+    }
+    if (row.status !== 'FAILED') {
+      throw conflict(
+        'NOTIFICATION_RETRY_NOT_ALLOWED',
+        'Only FAILED notification intents may be manually retried'
+      );
+    }
+
+    await client.query(`
+      update notification_delivery_intents
+      set status = 'PENDING',
+          available_at = now(),
+          locked_by = null,
+          locked_at = null,
+          lease_expires_at = null,
+          last_error_code = null,
+          last_error_message = null,
+          updated_at = now()
+      where id = $1
+    `, [intentId]);
+
+    await client.query(`
+      insert into audit_events(
+        actor_account_id,
+        action_code,
+        resource_type,
+        resource_id,
+        metadata,
+        source_code
+      )
+      values (
+        $1,
+        'NOTIFICATION_RETRY_REQUESTED',
+        'NOTIFICATION_INTENT',
+        $2,
+        jsonb_build_object(
+          'channel_code', $3::text,
+          'template_code', $4::text,
+          'recipient_account_id', $5::text
+        ),
+        'ADMIN'
+      )
+    `, [
+      actorAccountId,
+      intentId,
+      row.channel_code,
+      row.template_code,
+      row.recipient_account_id
+    ]);
+
+    await client.query('commit');
+    return { id: intentId, status: 'PENDING' };
+  } catch (error) {
+    await client.query('rollback');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 export async function listAdminFiles(pool, filters) {
   return listFileObjects(pool, filters);
 }
