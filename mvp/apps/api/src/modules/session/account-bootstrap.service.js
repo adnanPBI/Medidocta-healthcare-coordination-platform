@@ -1,18 +1,13 @@
-const ALLOWED_INITIAL_ROLES = new Set(['PATIENT', 'DOCTOR', 'FACILITY']);
-const ALLOWED_LOCALES = new Set(['en', 'fr']);
+import { requireSupportedLocale } from '../localization/localization.js';
 
+const ALLOWED_INITIAL_ROLES = new Set(['PATIENT', 'DOCTOR', 'FACILITY']);
 export async function bootstrapAccount(pool, identity, input) {
   const role = String(input.role ?? '').toUpperCase();
-  const preferredLocale = String(input.preferredLocale ?? 'fr').toLowerCase();
+  const preferredLocale = requireSupportedLocale(input.preferredLocale ?? 'fr', 'preferredLocale');
   if (!ALLOWED_INITIAL_ROLES.has(role)) {
     const error = new Error('Initial role must be PATIENT, DOCTOR, or FACILITY');
     error.statusCode = 422; error.code = 'INVALID_INITIAL_ROLE'; throw error;
   }
-  if (!ALLOWED_LOCALES.has(preferredLocale)) {
-    const error = new Error('preferredLocale must be en or fr');
-    error.statusCode = 422; error.code = 'INVALID_LOCALE'; throw error;
-  }
-
   const client = await pool.connect();
   try {
     await client.query('begin');
