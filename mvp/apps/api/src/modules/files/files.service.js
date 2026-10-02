@@ -25,6 +25,27 @@ function mapFile(row) {
   };
 }
 
+async function assertCanonicalResourceExists(client, resourceType, resourceId) {
+  const tableByType = {
+    APPOINTMENT: 'appointments',
+    PATIENT_PROFILE: 'patient_profiles',
+    DOCTOR_PROFILE: 'doctor_profiles',
+    HEALTHCARE_FACILITY: 'healthcare_facilities',
+    DOCTOR_FACILITY_AFFILIATION: 'doctor_facility_affiliations'
+  };
+  const table = tableByType[resourceType];
+  if (!table) {
+    const error = new Error('Unsupported file attachment resource type');
+    error.code = 'FILE_RESOURCE_TYPE_UNSUPPORTED';
+    error.statusCode = 422;
+    throw error;
+  }
+  const result = await client.query(`select 1 from ${table} where id = $1`, [resourceId]);
+  if (!result.rowCount) {
+    throw notFound('FILE_ATTACHMENT_RESOURCE_NOT_FOUND', 'File attachment resource not found');
+  }
+}
+
 function mapAttachment(row) {
   return {
     id: row.id,
@@ -123,6 +144,7 @@ export async function attachFileObjectForAuthorizedActor(pool, {
       [input.fileId]
     );
     if (!file.rowCount) throw notFound('FILE_OBJECT_NOT_FOUND', 'File object not found');
+    await assertCanonicalResourceExists(client, input.resourceType, input.resourceId);
 
     const inserted = await client.query(`
       insert into file_attachment_links(
