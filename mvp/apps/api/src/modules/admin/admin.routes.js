@@ -8,6 +8,7 @@ import {
   listAdminNotificationIntents,
   listAuditEvents,
   listOutboxEvents,
+  retryFailedNotificationIntent,
   retryFailedOutboxEvent
 } from './admin.service.js';
 import {
@@ -68,6 +69,16 @@ export async function registerAdminRoutes(app, deps) {
         templatePolicyResolved: false
       }
     };
+  });
+
+  app.post('/v1/admin/notification-intents/:intentId/retry', {
+    preHandler: deps.requireRegisteredContext
+  }, async request => {
+    requireAdminOversight(request.context);
+    return retryFailedNotificationIntent(deps.pool, {
+      intentId: validateAdminResourceId(request.params.intentId, 'intentId'),
+      actorAccountId: request.context.account.id
+    });
   });
 
   app.get('/v1/admin/files', {
