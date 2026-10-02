@@ -229,10 +229,22 @@ integration('notification delivery, file metadata and privileged audit/admin fou
       resourceType: 'PATIENT_PROFILE',
       resourceId: recipient.patientProfileId,
       relationCode: 'SUPPORTING_DOCUMENT',
-      metadata: { ignoredOnReplay: true }
+      metadata: { source: 'test' }
     });
     assert.equal(attachmentReplay.idempotentReplay, true);
     assert.equal(attachmentReplay.attachment.id, attachment.attachment.id);
+
+    await assert.rejects(
+      attachFileObjectForAuthorizedActor(pool, {
+        actorAccountId: admin.account.id,
+        fileId: file.id,
+        resourceType: 'PATIENT_PROFILE',
+        resourceId: recipient.patientProfileId,
+        relationCode: 'SUPPORTING_DOCUMENT',
+        metadata: { source: 'different' }
+      }),
+      error => error.code === 'FILE_ATTACHMENT_IDEMPOTENCY_CONFLICT'
+    );
 
     const patientFileDenied = await app.inject({
       method: 'GET',
