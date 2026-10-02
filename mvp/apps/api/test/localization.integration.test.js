@@ -25,6 +25,19 @@ integration('account locale preference, weighted negotiation and stable error ke
   const subject = `m09-locale-${suffix}`;
 
   try {
+    const meta = await app.inject({
+      method: 'GET',
+      url: '/v1/localization/meta',
+      headers: {
+        'accept-language': 'en-US;q=0.8,fr-CM;q=0.9'
+      }
+    });
+    assert.equal(meta.statusCode, 200);
+    assert.equal(meta.json().locale, 'fr');
+    assert.deepEqual(meta.json().supportedLocales, ['fr', 'en']);
+    assert.equal(meta.json().canonicalBusinessRecordsLocalized, false);
+    assert.equal(meta.json().machineErrorCodesStable, true);
+
     const bootstrap = await app.inject({
       method: 'POST',
       url: '/v1/accounts/bootstrap',
@@ -39,6 +52,7 @@ integration('account locale preference, weighted negotiation and stable error ke
       }
     });
     assert.equal(bootstrap.statusCode, 201);
+    assert.equal(bootstrap.json().localization.locale, 'fr');
     const accountId = bootstrap.json().context.account.id;
 
     const accountPreferredWins = await app.inject({
